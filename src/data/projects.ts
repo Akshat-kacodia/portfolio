@@ -28,8 +28,38 @@ export interface Project {
 
 export const projects: Project[] = [
   {
-    slug: 'campus-sphere',
+    slug: 'breakhis',
     num: '01',
+    title: 'BreakHis Classification',
+    category: 'AI / ML',
+    type: 'Research',
+    year: '2025',
+    shots: 'wide',
+    oneLiner: 'Breast cancer histopathology classification.',
+    summary: 'EfficientNet-B5 with a Transformer encoder for 8-class classification on the BreakHis dataset (7,909 images).',
+    stack: ['PyTorch', 'EfficientNet-B5', 'Transformer', 'OpenCV', 'Albumentations'],
+    facts: [
+      { k: 'Dataset', v: 'BreakHis · 7,909 images · 8 classes' },
+      { k: 'Model', v: 'EfficientNet-B5 + Transformer encoder' },
+      { k: 'Tech stack', v: 'PyTorch, OpenCV, Albumentations' },
+    ],
+    links: { github: '' },
+    overview: 'A deep-learning project that classifies breast cancer histopathology images into eight benign and malignant subtypes.',
+    problem:
+      'Subtypes can look alike, slides are captured at several magnifications, and stain colour varies between samples. A model has to learn the tissue, not the scanner.',
+    built:
+      'A classifier on the BreakHis dataset (7,909 images, 8 classes) that pairs an EfficientNet-B5 backbone with a Transformer encoder, trained with preprocessing that is safe for pathology images.',
+    engineering: [
+      'EfficientNet-B5 for feature extraction, followed by a Transformer encoder, in PyTorch.',
+      'Pathology-safe preprocessing and augmentation with OpenCV and Albumentations.',
+      'Multi-magnification analysis.',
+    ],
+    features: ['8-class classification', 'Hybrid CNN + Transformer model', 'Multi-magnification analysis'],
+    outcome: 'A research pipeline for multi-class histopathology classification.',
+  },
+  {
+    slug: 'campus-sphere',
+    num: '02',
     title: 'Campus Sphere',
     category: 'Android',
     type: 'Mobile app',
@@ -62,7 +92,7 @@ export const projects: Project[] = [
   },
   {
     slug: 'ieee-nsut-app',
-    num: '02',
+    num: '03',
     title: 'IEEE NSUT App',
     category: 'Flutter',
     type: 'Mobile app',
@@ -90,7 +120,7 @@ export const projects: Project[] = [
   },
   {
     slug: 'farmassist',
-    num: '03',
+    num: '04',
     title: 'FarmAssist',
     category: 'Computer Vision',
     type: 'Computer vision',
@@ -113,36 +143,6 @@ export const projects: Project[] = [
     engineering: ['PCA to compress hundreds of spectral bands.', 'Spectral indices as features: NDVI, NDWI, EVI, SAVI and NDRE.', 'Machine learning models for land-cover analysis.'],
     features: ['Dimensionality reduction', 'Vegetation & water indices', 'Land-cover analysis'],
     outcome: 'A working path from raw hyperspectral data to interpretable crop-health information.',
-  },
-  {
-    slug: 'breakhis',
-    num: '04',
-    title: 'BreakHis Classification',
-    category: 'AI / ML',
-    type: 'Research',
-    year: '2025',
-    shots: 'wide',
-    oneLiner: 'Breast cancer histopathology classification.',
-    summary: 'EfficientNet-B5 with a Transformer encoder for 8-class classification on the BreakHis dataset (7,909 images).',
-    stack: ['PyTorch', 'EfficientNet-B5', 'Transformer', 'OpenCV', 'Albumentations'],
-    facts: [
-      { k: 'Dataset', v: 'BreakHis · 7,909 images · 8 classes' },
-      { k: 'Model', v: 'EfficientNet-B5 + Transformer encoder' },
-      { k: 'Tech stack', v: 'PyTorch, OpenCV, Albumentations' },
-    ],
-    links: { github: '' },
-    overview: 'A deep-learning project that classifies breast cancer histopathology images into eight benign and malignant subtypes.',
-    problem:
-      'Subtypes can look alike, slides are captured at several magnifications, and stain colour varies between samples. A model has to learn the tissue, not the scanner.',
-    built:
-      'A classifier on the BreakHis dataset (7,909 images, 8 classes) that pairs an EfficientNet-B5 backbone with a Transformer encoder, trained with preprocessing that is safe for pathology images.',
-    engineering: [
-      'EfficientNet-B5 for feature extraction, followed by a Transformer encoder, in PyTorch.',
-      'Pathology-safe preprocessing and augmentation with OpenCV and Albumentations.',
-      'Multi-magnification analysis.',
-    ],
-    features: ['8-class classification', 'Hybrid CNN + Transformer model', 'Multi-magnification analysis'],
-    outcome: 'A research pipeline for multi-class histopathology classification.',
   },
   {
     slug: 'waste-segregation',
