@@ -1,0 +1,17 @@
+---
+// One screenshot: real image if present, otherwise a marked slot.
+import AssetSlot from './AssetSlot.astro';
+interface Props { src?: string | null; alt: string; frame: 'phone' | 'wide'; slotPath: string; slotLabel?: string; eager?: boolean; class?: string; compact?: boolean }
+const { src, alt, frame, slotPath, slotLabel = 'Screenshot', eager, class: cls, compact } = Astro.props;
+---
+<figure class:list={['shot', `shot--${frame}`, cls]}>
+  {src
+    ? <img src={src} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+    : <AssetSlot label={slotLabel} path={slotPath} compact={compact} />}
+</figure>
+<style>
+  .shot { position: relative; overflow: hidden; background: var(--bg-2); flex: none; }
+  .shot img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .shot--phone { aspect-ratio: 9 / 19.5; border-radius: 22px; border: 1px solid var(--line-2); box-shadow: 0 24px 50px -24px rgba(0,0,0,.9); }
+  .shot--wide { aspect-ratio: 16 / 10; border-radius: var(--r-lg); border: 1px solid var(--line); }
+</style>

@@ -1,0 +1,16 @@
+---
+import Icon from './Icon.astro';
+interface Props { href: string; variant?: 'primary' | 'ghost'; icon?: 'arrow' | 'arrow-up-right' | 'download' | 'none'; external?: boolean; download?: boolean; class?: string }
+const { href, variant = 'ghost', icon = 'arrow', external, download, class: cls } = Astro.props;
+---
+<a href={href} class:list={['btn', `btn--${variant}`, cls]} target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined} download={download ? '' : undefined}>
+  <slot />{icon !== 'none' && <Icon name={icon} size={15} class="btn__i" />}
+</a>
+<style>
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: .55rem; min-height: 46px; padding: .7rem 1.15rem; border-radius: var(--r); font-size: .95rem; font-weight: 500; letter-spacing: -.005em; border: 1px solid var(--line-2); transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast); white-space: nowrap; }
+  .btn :global(.btn__i) { transition: transform var(--t) var(--ease); }
+  .btn:hover :global(.btn__i) { transform: translateX(3px); }
+  .btn--primary { background: var(--lime); border-color: var(--lime); color: var(--lime-ink); }
+  .btn--primary:hover { background: var(--ink); border-color: var(--ink); }
+  .btn--ghost:hover { border-color: var(--ink-3); }
+</style>

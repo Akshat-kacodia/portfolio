@@ -1,0 +1,38 @@
+---
+import { site } from '../data/site';
+import Icon from './ui/Icon.astro';
+const rows = [
+  { k: 'Email', v: site.email, href: `mailto:${site.email}`, icon: 'mail' as const, ext: false },
+  { k: 'LinkedIn', v: site.linkedin.replace(/^https?:\/\/(www\.)?/, ''), href: site.linkedin, icon: 'linkedin' as const, ext: true },
+  { k: 'GitHub', v: site.github.replace(/^https?:\/\/(www\.)?/, ''), href: site.github, icon: 'github' as const, ext: true },
+  { k: 'LeetCode', v: site.leetcode.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''), href: site.leetcode, icon: 'code' as const, ext: true },
+  { k: 'Résumé', v: 'PDF', href: site.resume, icon: 'file' as const, ext: true },
+];
+---
+<section id="contact" class="section contact" aria-labelledby="contact-title">
+  <div class="container">
+    <div data-reveal>
+      <p class="meta">Contact</p>
+      <h2 class="contact__title" id="contact-title">Have an idea?<br /><span class="lime">Let’s build it.</span></h2>
+      <p class="contact__lede">I’m open to internships, interesting projects and conversations about either. Email is the fastest way to reach me: <a class="contact__mail" href={`mailto:${site.email}`}>{site.email}</a></p>
+    </div>
+    <ul class="contact__icons" aria-label="Contact links" data-reveal data-delay="1">
+      {rows.map((r) => (
+        <li><a href={r.href} target={r.ext ? '_blank' : undefined} rel={r.ext ? 'noopener' : undefined} aria-label={r.k} title={r.k}><Icon name={r.icon} size={20} /></a></li>
+      ))}
+      <li><button type="button" class="contact__copy" data-copy={site.email}><Icon name="copy" size={15} /><span data-copy-label>Copy email</span></button></li>
+    </ul>
+  </div>
+</section>
+<style>
+  .contact { border-top: 1px solid var(--line); }
+  .contact__title { margin-top: 1rem; font-size: clamp(2.3rem, 1.3rem + 3.4vw, 4.4rem); font-weight: 600; letter-spacing: -.05em; line-height: 1; }
+  .contact__lede { margin-top: 1.4rem; color: var(--ink-2); max-width: 52ch; }
+  .contact__mail { color: var(--ink); border-bottom: 1px solid var(--line-2); transition: color var(--t-fast), border-color var(--t-fast); word-break: break-all; }
+  .contact__mail:hover { color: var(--lime); border-color: var(--lime); }
+  .contact__icons { margin-top: 2rem; display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
+  .contact__icons a { width: 48px; height: 48px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line-2); border-radius: 50%; color: var(--ink-2); transition: color var(--t-fast), border-color var(--t-fast), transform var(--t) var(--ease); }
+  .contact__icons a:hover { color: var(--lime); border-color: var(--lime); transform: translateY(-2px); }
+  .contact__copy { margin-left: .4rem; display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; padding: .55rem 1rem; border: 1px solid var(--line-2); border-radius: 999px; font-size: .88rem; color: var(--ink-2); transition: border-color var(--t-fast), color var(--t-fast); }
+  .contact__copy:hover { border-color: var(--lime); color: var(--lime); }
+</style>

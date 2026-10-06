@@ -1,0 +1,16 @@
+---
+import { site } from '../data/site';
+---
+<footer class="footer">
+  <div class="container footer__row">
+    <span>© {new Date().getFullYear()} {site.name}</span>
+    <span>NSUT, Delhi · <span data-clock>IST</span></span>
+    <a href="#top" class="footer__top">Back to top ↑</a>
+  </div>
+</footer>
+<style>
+  .footer { border-top: 1px solid var(--line); }
+  .footer__row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem 2rem; padding-block: 1.75rem calc(1.75rem + env(safe-area-inset-bottom, 0px)); font-size: .82rem; color: var(--ink-3); }
+  .footer__top { transition: color var(--t-fast); }
+  .footer__top:hover { color: var(--lime); }
+</style>

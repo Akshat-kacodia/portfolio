@@ -1,0 +1,70 @@
+---
+// "What I work with" — an index of tools, one row per area.
+import { toolkit } from '../data/site';
+const total = toolkit.reduce((n, g) => n + g.items.length, 0);
+---
+<section id="stack" class="section stack" aria-labelledby="stack-title">
+  <div class="container">
+    <header class="s__head" data-reveal>
+      <h2 class="h2" id="stack-title">What I work with</h2>
+      <p class="s__sub">The languages, frameworks and tools I use most.</p>
+    </header>
+
+    <ol class="s">
+      {toolkit.map((g, i) => (
+        <li class="s__row" data-reveal data-delay={String(i % 3)}>
+          <div class="s__meta">
+            <h3 class="s__group">{g.group}</h3>
+            <p class="s__note">{g.note}</p>
+          </div>
+          <ul class="s__items" aria-label={g.group}>
+            {g.items.map((it) => <li>{it}</li>)}
+          </ul>
+          <span class="s__count tnum" aria-hidden="true">{String(g.items.length).padStart(2, '0')}</span>
+        </li>
+      ))}
+    </ol>
+    <p class="s__foot meta" data-reveal><span class="tnum">{total}</span> tools · {toolkit.length} areas</p>
+  </div>
+</section>
+
+<style>
+  .s__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem 2rem; flex-wrap: wrap; margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.5rem); }
+  .s__sub { color: var(--ink-3); }
+
+  .s { border-top: 1px solid var(--line-2); }
+  .s__row {
+    display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) 3rem; align-items: center; column-gap: clamp(1rem, 2.5vw, 2.5rem);
+    padding-block: clamp(1.4rem, 1rem + 1.2vw, 2.1rem); border-bottom: 1px solid var(--line); position: relative;
+  }
+  .s__row::before { content: ""; position: absolute; inset: -1px 0 -1px; border-top: 1px solid var(--lime); transform: scaleX(0); transform-origin: left; transition: transform .6s var(--ease); pointer-events: none; }
+  .s__row:hover::before { transform: scaleX(1); }
+
+  .s__row:hover .s__group { color: var(--lime); }
+  .s__group { transition: color var(--t-fast); }
+  .s__group { font-size: 1.05rem; font-weight: 600; letter-spacing: -.015em; }
+  .s__note { margin-top: .2rem; font-size: .85rem; color: var(--ink-3); }
+
+  .s__items { display: flex; flex-wrap: wrap; align-items: baseline; gap: .35rem 0; }
+  .s__items li {
+    font-family: var(--f-display); font-weight: 700; font-stretch: 80%; font-variation-settings: "wdth" 80;
+    text-transform: uppercase; font-size: clamp(1.4rem, 1rem + 1.25vw, 2.1rem); line-height: 1.05; letter-spacing: .005em;
+    color: var(--ink-2); transition: color var(--t-fast);
+  }
+  .s__items li:not(:last-child)::after { content: "/"; margin-inline: .5em; color: var(--line-2); font-weight: 400; }
+  .s__row:hover .s__items li { color: var(--ink); }
+  .s__items li:hover { color: var(--lime) !important; }
+
+  .s__count { justify-self: end; font-family: var(--f-mono); font-size: .72rem; color: var(--ink-3); }
+  .s__foot { margin-top: 1.25rem; text-align: right; }
+
+  @container main (max-width: 900px) {
+    .s__row { grid-template-columns: minmax(0, 1fr) 2.5rem; row-gap: .9rem; }
+    .s__count { grid-column: 2; grid-row: 1; }
+    .s__items { grid-column: 1 / -1; }
+  }
+  @container main (max-width: 520px) {
+    .s__items li { font-size: 1.35rem; }
+    .s__foot { text-align: left; }
+  }
+</style>

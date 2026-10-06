@@ -1,0 +1,64 @@
+---
+import { journey } from '../data/site';
+---
+<section id="journey" class="section journey" aria-labelledby="journey-title">
+  <div class="container">
+    <header class="j__head" data-reveal>
+      <h2 class="h2" id="journey-title">Experience &amp; journey</h2>
+      <p class="j__sub">A timeline of what I’ve been building and learning.</p>
+    </header>
+    <ol class="j">
+      {journey.map((e, i) => (
+        <li class:list={['j__item', { 'j__item--now': e.now }]} data-reveal data-delay={String(i % 3)}>
+          <span class="j__year tnum">{e.year}</span>
+          <span class="j__dot" aria-hidden="true"></span>
+          <span class="j__tag">{e.tag}</span>
+          <h3 class="j__title">{e.href ? <a href={e.href}>{e.title}</a> : e.title}</h3>
+          <ul class="j__lines">{e.lines.map((l) => <li>{l}</li>)}</ul>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+<style>
+  .journey { border-top: 1px solid var(--line); }
+  .j__head { display: grid; gap: .75rem; margin-bottom: clamp(2.5rem, 2rem + 3vw, 4.5rem); }
+  .j__sub { color: var(--ink-3); }
+
+  /* desktop: a horizontal line you read left to right */
+  .j { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); position: relative; }
+  .j::before { content: ""; position: absolute; left: 0; right: 0; top: 3.15rem; height: 1px; background: var(--line-2); }
+  .j__item { position: relative; display: flex; flex-direction: column; padding-right: 1.5rem; }
+  .j__year { font-size: clamp(1.6rem, 1.2rem + 1vw, 2.2rem); font-weight: 600; letter-spacing: -.04em; line-height: 1; color: var(--ink-2); }
+  .j__dot { width: 11px; height: 11px; border-radius: 50%; background: var(--bg); border: 2px solid var(--lime); margin: 1.05rem 0 1.25rem -0; position: relative; z-index: 1; }
+  .j__tag { font-family: var(--f-mono); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .j__title { margin-top: .4rem; font-size: 1.12rem; font-weight: 600; letter-spacing: -.02em; }
+  .j__title a { border-bottom: 1px solid var(--line-2); transition: color var(--t-fast), border-color var(--t-fast); }
+  .j__title a:hover { color: var(--lime); border-color: var(--lime); }
+  .j__lines { margin-top: .45rem; display: grid; gap: .2rem; font-size: .9rem; color: var(--ink-3); }
+  .j__item--now .j__year { color: var(--lime); }
+  .j__item--now .j__dot { background: var(--lime); box-shadow: 0 0 0 5px rgba(198, 240, 90, .14); }
+  .j__item--now .j__title { color: var(--lime); }
+  @media (prefers-reduced-motion: no-preference) {
+    .j__item--now .j__dot { animation: beat 2.6s ease-in-out infinite; }
+    @keyframes beat { 50% { box-shadow: 0 0 0 9px rgba(198, 240, 90, 0); } }
+  }
+
+  /* tablet: two rows of three */
+  @container main (max-width: 940px) {
+    .j { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 3rem; }
+    .j::before { display: none; }
+    .j__item { border-top: 1px solid var(--line-2); padding-top: 1.25rem; }
+    .j__dot { position: absolute; top: -6px; left: 0; margin: 0; }
+    .j__year { margin-bottom: 1rem; }
+  }
+  /* phones: vertical, the line runs down the left */
+  @container main (max-width: 560px) {
+    .j { grid-template-columns: minmax(0, 1fr); row-gap: 0; padding-left: 1.6rem; }
+    .j::before { display: block; left: 5px; right: auto; top: .4rem; bottom: .4rem; width: 1px; height: auto; }
+    .j__item { border-top: 0; padding: 0 0 2.25rem; }
+    .j__item:last-child { padding-bottom: 0; }
+    .j__dot { position: absolute; left: -1.6rem; top: .55rem; }
+    .j__year { font-size: 1.5rem; margin-bottom: .6rem; }
+  }
+</style>

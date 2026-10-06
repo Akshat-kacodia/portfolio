@@ -1,0 +1,93 @@
+---
+import { site } from '../data/site';
+import { findImage } from '../lib/assets';
+import Icon from './ui/Icon.astro';
+import AssetSlot from './ui/AssetSlot.astro';
+const photo = findImage(site.photo);
+const facts = [
+  { k: 'Studying', v: 'B.Tech CS & AI', sub: 'NSUT · 2023–27' },
+  { k: 'Based in', v: site.location, sub: '' },
+  { k: 'Upcoming', v: 'Software Engineer Intern', sub: 'Fox Corporation' },
+];
+const links = [
+  { label: 'Email', href: `mailto:${site.email}`, icon: 'mail' as const, ext: false },
+  { label: 'LinkedIn', href: site.linkedin, icon: 'linkedin' as const, ext: true },
+  { label: 'GitHub', href: site.github, icon: 'github' as const, ext: true },
+  { label: 'LeetCode', href: site.leetcode, icon: 'code' as const, ext: true },
+];
+---
+<section id="about" class="section about" aria-labelledby="about-title">
+  <div class="container about__grid">
+    <figure class="about__photo" data-reveal>
+      <div class="about__frame">
+        {photo
+          ? <img src={photo} alt="Akshat Kacodia" width="960" height="1200" loading="lazy" />
+          : <AssetSlot label="Your photo" path={`${site.photo}.jpg`} />}
+      </div>
+      <figcaption>
+        <span class="about__name">{site.name}</span>
+        <span class="about__status"><span class="dot"></span>available · {site.location}</span>
+      </figcaption>
+    </figure>
+
+    <div class="about__words" data-reveal data-delay="1">
+      <h2 class="meta about__label" id="about-title">About</h2>
+      <p class="about__lede">I’m a Computer Science &amp; AI student at NSUT. I enjoy building software, especially Android apps and AI/ML projects, and I’m interested in how ideas can be turned into useful products. I also like exploring startups and figuring out <span class="lime">what’s worth building.</span></p>
+
+      <dl class="about__facts">
+        {facts.map((f) => <div><dt class="meta">{f.k}</dt><dd>{f.v}{f.sub && <span class="about__sub">{f.sub}</span>}</dd></div>)}
+      </dl>
+
+      <div class="about__actions">
+        <a class="about__btn about__btn--main" href={site.resume} target="_blank" rel="noopener">View résumé <Icon name="arrow-up-right" size={15} /></a>
+        <a class="about__btn" href="#contact">Get in touch</a>
+        <ul class="about__links" aria-label="Elsewhere">
+          {links.map((l) => (
+            <li><a href={l.href} target={l.ext ? '_blank' : undefined} rel={l.ext ? 'noopener' : undefined} aria-label={l.label} title={l.label}><Icon name={l.icon} size={18} /></a></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about { border-top: 1px solid var(--line); }
+  .about__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 6vw, 6rem); align-items: center; }
+
+  .about__photo { margin: 0; display: grid; gap: .9rem; max-width: 26rem; }
+  .about__frame { aspect-ratio: 4 / 5; border-radius: 18px; overflow: hidden; background: var(--bg-2); }
+  .about__frame img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; filter: saturate(.92) brightness(.95); }
+  .about__photo figcaption { display: flex; justify-content: space-between; align-items: center; gap: .5rem 1rem; flex-wrap: wrap; }
+  .about__name { font-weight: 600; letter-spacing: -.015em; }
+  .about__status { display: inline-flex; align-items: center; gap: .5rem; font-family: var(--f-mono); font-size: .72rem; color: var(--ink-3); }
+
+  .about__label { font-weight: 400; }
+  .about__lede { margin-top: 1.4rem; font-family: var(--f-serif); font-style: normal; font-weight: 400; font-size: clamp(1.7rem, 1.1rem + 1.9vw, 2.8rem); line-height: 1.18; letter-spacing: -.012em; color: var(--ink); max-width: 30ch; text-wrap: pretty; }
+
+  .about__facts { margin-top: 2rem; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .75fr) minmax(0, 1.1fr); border-top: 1px solid var(--line); }
+  .about__facts > div { padding: 1rem 1rem 1rem 0; border-bottom: 1px solid var(--line); }
+  .about__sub { display: block; color: var(--ink-3); }
+  .about__facts dd { margin-top: .3rem; color: var(--ink); font-size: .95rem; }
+
+  .about__actions { margin-top: 2rem; display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
+  .about__btn { display: inline-flex; align-items: center; gap: .45rem; min-height: 46px; padding: .6rem 1.15rem; border-radius: 12px; border: 1px solid var(--line-2); font-size: .94rem; font-weight: 500; transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast); }
+  .about__btn:hover { border-color: var(--ink-3); }
+  .about__btn--main { background: var(--lime); border-color: var(--lime); color: var(--lime-ink); }
+  .about__btn--main:hover { background: var(--ink); border-color: var(--ink); }
+  .about__links { display: flex; gap: .4rem; margin-left: .5rem; }
+  .about__links a { width: 46px; height: 46px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--line-2); color: var(--ink-2); transition: color var(--t-fast), border-color var(--t-fast), transform var(--t) var(--ease); }
+  .about__links a:hover { color: var(--lime); border-color: var(--lime); transform: translateY(-2px); }
+
+  @container main (max-width: 900px) {
+    .about__grid { grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); align-items: start; }
+  }
+  @container main (max-width: 640px) {
+    .about__grid { grid-template-columns: minmax(0, 1fr); }
+    .about__photo { max-width: none; }
+    .about__frame { aspect-ratio: 1 / 1; }
+    .about__facts { grid-template-columns: minmax(0, 1fr); }
+    .about__actions > .about__btn { flex: 1 1 0; justify-content: center; }
+    .about__links { margin-left: 0; width: 100%; }
+  }
+</style>

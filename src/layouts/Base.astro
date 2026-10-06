@@ -1,0 +1,111 @@
+---
+import '@fontsource/caveat/latin-500.css';
+import '@fontsource-variable/archivo/wdth.css';
+import '@fontsource/instrument-serif/latin-400.css';
+import '@fontsource-variable/geist';
+import '@fontsource-variable/geist-mono';
+import '../styles/global.css';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+
+interface Props { title?: string; description?: string; active?: string; spy?: boolean }
+const { title = site.title, description = site.description, active = '', spy = false } = Astro.props;
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+const sameAs = [site.github, site.linkedin, site.leetcode].filter(Boolean);
+const jsonLd = {
+  '@context': 'https://schema.org', '@type': 'Person', name: site.name, email: `mailto:${site.email}`,
+  jobTitle: 'Software Engineer', alumniOf: { '@type': 'CollegeOrUniversity', name: 'Netaji Subhas University of Technology' },
+  knowsAbout: ['Android', 'Kotlin', 'Jetpack Compose', 'Flutter', 'Machine Learning', 'Computer Vision', 'PyTorch', 'RAG'],
+  ...(sameAs.length ? { sameAs } : {}), ...(canonical ? { url: canonical } : {}),
+};
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <meta name="author" content={site.name} />
+  <meta name="theme-color" content="#0a0b0b" />
+  {canonical && <link rel="canonical" href={canonical} />}
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:site_name" content={site.name} />
+  {canonical && <meta property="og:url" content={canonical} />}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <script is:inline>document.documentElement.classList.add('js')</script>
+</head>
+<body data-spy={spy ? '' : undefined}>
+  <a class="skip" href="#main">Skip to content</a>
+  <Navbar active={active} />
+  <main id="main"><slot /></main>
+  <Footer />
+
+  <script is:inline>
+  (() => {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    /* nav state + scroll progress */
+    const nav = document.querySelector('[data-nav]');
+    const onScroll = () => {
+      const h = document.documentElement;
+      const p = h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight);
+      nav.style.setProperty('--p', p.toFixed(4));
+      nav.classList.toggle('is-scrolled', h.scrollTop > 12);
+    };
+    addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+    /* active section (home only) */
+    if (document.body.hasAttribute('data-spy')) {
+      const links = [...document.querySelectorAll('[data-nav-link]')];
+      const ids = links.map(l => l.dataset.navLink);
+      const sections = ids.map(id => document.getElementById(id)).filter(Boolean);
+      const spy = () => {
+        let cur = null;
+        for (const s of sections) if (s.getBoundingClientRect().top < innerHeight * 0.4) cur = s.id;
+        links.forEach(l => l.dataset.navLink === cur ? l.setAttribute('aria-current', 'true') : l.removeAttribute('aria-current'));
+      };
+      addEventListener('scroll', spy, { passive: true }); spy();
+    }
+
+    /* mobile menu */
+    const menu = document.querySelector('[data-menu]');
+    const openBtn = document.querySelector('[data-menu-open]');
+    const close = () => { menu.hidden = true; openBtn.setAttribute('aria-expanded', 'false'); document.body.style.overflow = ''; openBtn.focus(); };
+    openBtn?.addEventListener('click', () => { menu.hidden = false; openBtn.setAttribute('aria-expanded', 'true'); document.body.style.overflow = 'hidden'; menu.querySelector('a')?.focus(); });
+    menu?.querySelector('[data-menu-close]')?.addEventListener('click', close);
+    menu?.querySelectorAll('[data-menu-link]').forEach(a => a.addEventListener('click', () => { menu.hidden = true; openBtn.setAttribute('aria-expanded', 'false'); document.body.style.overflow = ''; }));
+    addEventListener('keydown', e => { if (e.key === 'Escape' && menu && !menu.hidden) close(); });
+
+    /* reveal on scroll */
+    const els = document.querySelectorAll('[data-reveal]');
+    if ('IntersectionObserver' in window && !reduce) {
+      const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
+      els.forEach(el => io.observe(el));
+    } else els.forEach(el => el.classList.add('in'));
+
+
+    /* copy email */
+    document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', async () => {
+      const label = b.querySelector('[data-copy-label]') || b; const prev = label.textContent;
+      try { await navigator.clipboard.writeText(b.dataset.copy); label.textContent = 'Copied'; }
+      catch { const t = document.querySelector(b.dataset.copyTarget || ''); if (t) { const r = document.createRange(); r.selectNodeContents(t); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } label.textContent = 'Press Ctrl+C'; }
+      setTimeout(() => label.textContent = prev, 2200);
+    }));
+
+    /* local clock */
+    const clock = document.querySelectorAll('[data-clock]');
+    const tick = () => { const t = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' }); clock.forEach(c => c.textContent = `${t} IST`); };
+    tick(); setInterval(tick, 30000);
+  })();
+  </script>
+  <slot name="scripts" />
+</body>
+</html>

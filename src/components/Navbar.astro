@@ -1,0 +1,68 @@
+---
+import { site, nav } from '../data/site';
+import Icon from './ui/Icon.astro';
+interface Props { active?: string }
+const { active = '' } = Astro.props;
+---
+<header class="nav" data-nav>
+  <div class="container nav__row">
+    <a class="nav__name" href="/#top" aria-label="Akshat Kacodia — back to top">{site.name}<span class="dot" aria-hidden="true"></span></a>
+    <nav class="nav__links" aria-label="Primary">
+      {nav.map((n) => <a href={n.href} data-nav-link={n.id} aria-current={n.id === active ? 'true' : undefined}>{n.label}</a>)}
+    </nav>
+    <a class="nav__cv" href={site.resume} target="_blank" rel="noopener">Résumé <Icon name="arrow-up-right" size={14} /></a>
+    <button class="nav__burger" type="button" aria-expanded="false" aria-controls="menu" data-menu-open>
+      <Icon name="menu" size={22} /><span class="sr-only">Open menu</span>
+    </button>
+  </div>
+</header>
+
+<div class="menu" id="menu" data-menu hidden>
+  <div class="container menu__top">
+    <span class="nav__name">{site.name}<span class="dot" aria-hidden="true"></span></span>
+    <button type="button" class="menu__close" data-menu-close><Icon name="close" size={22} /><span class="sr-only">Close menu</span></button>
+  </div>
+  <nav class="container menu__links" aria-label="Mobile">
+    {nav.map((n) => <a href={n.href} data-menu-link>{n.label}</a>)}
+    <a href={site.resume} target="_blank" rel="noopener" data-menu-link>Résumé ↗</a>
+  </nav>
+  <div class="container menu__foot">
+    <span class="meta">{site.school} · {site.location}</span>
+    <a href={`mailto:${site.email}`} class="menu__mail">{site.email}</a>
+  </div>
+</div>
+
+<style>
+  .nav { position: sticky; top: 0; z-index: 50; padding-top: env(safe-area-inset-top, 0px); border-bottom: 1px solid transparent; transition: background var(--t), border-color var(--t); }
+  .nav.is-scrolled { background: rgba(11, 12, 11, .82); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom-color: var(--line); }
+  .nav__row { display: flex; align-items: center; gap: 2rem; height: 4.5rem; transition: height var(--t); }
+  .nav.is-scrolled .nav__row { height: 3.75rem; }
+  .nav__name { display: inline-flex; align-items: center; gap: .55rem; font-weight: 600; font-size: .95rem; letter-spacing: .06em; text-transform: uppercase; margin-right: auto; }
+  .nav__links { display: flex; gap: 2rem; font-size: .9rem; }
+  .nav__links a { color: var(--ink-3); padding-block: .6rem; position: relative; transition: color var(--t-fast); }
+  .nav__links a:hover { color: var(--ink); }
+  .nav__links a[aria-current="true"] { color: var(--lime); }
+  .nav__cv { display: inline-flex; align-items: center; gap: .4rem; font-size: .9rem; border: 1px solid var(--line-2); border-radius: var(--r); padding: .5rem .85rem; transition: border-color var(--t-fast), color var(--t-fast); }
+  .nav__cv:hover { border-color: var(--lime); color: var(--lime); }
+  .nav__burger { display: none; width: 44px; height: 44px; align-items: center; justify-content: center; margin-right: -10px; }
+  @media (max-width: 860px) {
+    .nav__links, .nav__cv { display: none; }
+    .nav__burger { display: inline-flex; }
+    .nav__name { font-size: .88rem; }
+  }
+  .menu { position: fixed; inset: 0; z-index: 90; background: var(--bg); display: flex; flex-direction: column; padding-block: env(safe-area-inset-top, 0px) env(safe-area-inset-bottom, 0px); }
+  .menu[hidden] { display: none; }
+  .menu__top { display: flex; justify-content: space-between; align-items: center; height: 4.5rem; }
+  .menu__close { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; margin-right: -10px; }
+  .menu__links { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: .2rem; }
+  .menu__links a { font-size: clamp(2.2rem, 10vw, 3.2rem); font-weight: 600; letter-spacing: -.035em; padding-block: .25rem; }
+  .menu__links a:hover, .menu__links a:focus-visible { color: var(--lime); }
+  .menu__foot { display: flex; flex-direction: column; gap: .4rem; padding-block: 1.5rem 2rem; }
+  .menu__mail { color: var(--ink-2); }
+  @media (prefers-reduced-motion: no-preference) {
+    .menu:not([hidden]) .menu__links a { animation: menuIn .55s var(--ease) both; }
+    .menu__links a:nth-child(2) { animation-delay: .04s !important; } .menu__links a:nth-child(3) { animation-delay: .08s !important; }
+    .menu__links a:nth-child(4) { animation-delay: .12s !important; } .menu__links a:nth-child(5) { animation-delay: .16s !important; } .menu__links a:nth-child(6) { animation-delay: .2s !important; }
+    @keyframes menuIn { from { transform: translateY(18px); opacity: 0; } }
+  }
+</style>

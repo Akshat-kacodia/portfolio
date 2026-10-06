@@ -1,0 +1,192 @@
+---
+import { site } from '../data/site';
+import Icon from './ui/Icon.astro';
+const rail = [
+  { n: '01', t: 'top', label: 'Home' }, { n: '02', t: 'work', label: 'Work' }, { n: '03', t: 'about', label: 'About' },
+  { n: '04', t: 'journey', label: 'Experience' }, { n: '05', t: 'stack', label: 'Stack' }, { n: '06', t: 'contact', label: 'Contact' },
+];
+const socials = [
+  { label: 'GitHub', href: site.github, icon: 'github' as const, ext: true },
+  { label: 'LinkedIn', href: site.linkedin, icon: 'linkedin' as const, ext: true },
+  { label: 'LeetCode', href: site.leetcode, icon: 'code' as const, ext: true },
+  { label: 'Email', href: `mailto:${site.email}`, icon: 'mail' as const, ext: false },
+];
+---
+<section id="top" class="hero" aria-labelledby="hero-title">
+  <div class="container hero__grid">
+    <nav class="hero__rail" aria-label="Section index" data-rail>
+      {rail.map((r) => <a href={`#${r.t}`} data-target={r.t} class="tnum" aria-label={`${r.n} ${r.label}`}>{r.n}</a>)}
+    </nav>
+
+    <div class="hero__copy">
+      <p class="meta hero__eyebrow" data-intro style="--i:0">{site.role}</p>
+      <h1 class="hero__title" id="hero-title">
+        <span class="ln"><span style="--i:1">I build things</span></span>
+        <span class="ln"><span style="--i:2">I believe</span></span>
+        <span class="ln"><span style="--i:3" class="lime">should exist.</span></span>
+      </h1>
+      <p class="hero__tag" data-intro style="--i:5">
+        <span>Computer Science &amp; AI @ NSUT</span><i aria-hidden="true">·</i><span>Software Engineer</span><i aria-hidden="true">·</i><span>Builder</span>
+      </p>
+      <div class="hero__actions" data-intro style="--i:6">
+        <a href="#contact" class="hero__open"><span class="dot hero__dot"></span>Open to opportunities</a>
+        <ul class="hero__socials" aria-label="Elsewhere">
+          {socials.map((s) => (
+            <li><a href={s.href} target={s.ext ? '_blank' : undefined} rel={s.ext ? 'noopener' : undefined} aria-label={s.label} title={s.label}><Icon name={s.icon} size={18} /></a></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <figure class="hero__visual" data-intro style="--i:3">
+      <div class="hero__code" aria-hidden="true">
+        <pre><span class="c">// turning ideas into software people can use</span>
+
+<span class="k">build</span>();
+<span class="k">learn</span>();
+<span class="k">experiment</span>();
+<span class="k">repeat</span>();</pre>
+        <ul><li>Products</li><li>Research</li><li>AI/ML</li><li>Mobile</li><li>Systems</li></ul>
+        <svg class="hero__spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0c.6 6.4 5.6 11.4 12 12-6.4.6-11.4 5.6-12 12-.6-6.4-5.6-11.4-12-12C6.4 11.4 11.4 6.4 12 0Z" fill="currentColor"/></svg>
+      </div>
+      <div class="hero__frame" aria-hidden="true">
+        <canvas data-terrain></canvas>
+        <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
+        <span class="hero__hud"><span>fig. 00 — terrain</span><span data-hud>x 0.00 · y 0.00</span></span>
+      </div>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .hero { padding-block: clamp(2.5rem, 1rem + 4.5vw, 5rem) clamp(3rem, 1.5rem + 4vw, 5.5rem); position: relative; }
+  .hero__grid { position: relative; }
+
+  /* section rail */
+  .hero__rail { position: fixed; z-index: 40; top: 50%; translate: 0 -50%; left: max(.9rem, calc((100vw - var(--max)) / 2 - 1.25rem)); display: flex; flex-direction: column; gap: .9rem; font-family: var(--f-mono); font-size: .72rem; color: var(--ink-3); }
+  .hero__rail a { position: relative; }
+  .hero__rail a { width: max-content; padding-block: .1rem; transition: color var(--t-fast); }
+  .hero__rail a:hover { color: var(--ink); }
+  .hero__rail a.on { color: var(--lime); }
+  .hero__rail a.on::after { content: ""; display: block; width: 1px; height: 2.6rem; background: var(--lime); margin: .6rem 0 0 .35rem; }
+
+  /* words */
+  .hero__copy { position: relative; z-index: 2; min-width: 0; }
+  .hero__eyebrow { margin-bottom: clamp(1.25rem, 2vw, 2rem); }
+  .hero__title {
+    font-family: var(--f-display); font-weight: 800; font-stretch: 72%; font-variation-settings: "wdth" 72;
+    text-transform: uppercase; font-size: clamp(2.8rem, .4rem + 6.7vw, 6.6rem); line-height: .9; letter-spacing: -.01em;
+    display: flex; flex-direction: column;
+  }
+  .hero__title .ln { display: block; overflow: hidden; padding-bottom: .04em; margin-bottom: -.04em; }
+  .hero__title .ln > span { display: inline-block; }
+  .hero__tag { margin-top: clamp(1.5rem, 2.4vw, 2.25rem); font-size: clamp(1rem, .9rem + .35vw, 1.2rem); color: var(--ink-2); }
+  .hero__tag i { font-style: normal; color: var(--ink-3); margin-inline: .55rem; }
+  .hero__actions { margin-top: 1.75rem; display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; }
+  .hero__open { display: inline-flex; align-items: center; gap: .7rem; font-family: var(--f-mono); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; border: 1px solid var(--line-2); border-radius: 999px; padding: .9rem 1.2rem; transition: border-color var(--t), color var(--t); }
+  .hero__open:hover { border-color: var(--lime); color: var(--lime); }
+  .hero__socials { display: flex; gap: .25rem; }
+  .hero__socials a { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; color: var(--ink-3); border-radius: 50%; transition: color var(--t-fast), background var(--t-fast); }
+  .hero__socials a:hover { color: var(--lime); background: var(--surface); }
+
+  /* code card + terrain */
+  .hero__visual { position: absolute; right: var(--gutter); top: 0; width: min(36%, 500px); z-index: 1; margin: 0; }
+  .hero__frame { position: relative; border: 1px solid var(--line); aspect-ratio: 1 / 1.02; background: radial-gradient(120% 80% at 70% 100%, rgba(198, 240, 90, .035), transparent 60%); }
+  .hero__frame canvas { display: block; width: 100%; height: 100%; }
+  .tick { position: absolute; width: 9px; height: 9px; border-color: var(--ink-3); border-style: solid; border-width: 0; }
+  .tl { top: -1px; left: -1px; border-top-width: 1px; border-left-width: 1px; } .tr { top: -1px; right: -1px; border-top-width: 1px; border-right-width: 1px; }
+  .bl { bottom: -1px; left: -1px; border-bottom-width: 1px; border-left-width: 1px; } .br { bottom: -1px; right: -1px; border-bottom-width: 1px; border-right-width: 1px; }
+  .hero__hud { position: absolute; left: .9rem; right: .9rem; bottom: .7rem; display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .hero__code { position: relative; z-index: 2; margin: 0 0 -3.2rem -22%; width: 92%; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1.2rem; padding: 1.1rem 1.2rem; background: rgba(14, 15, 15, .92); border: 1px solid var(--line-2); transform: rotate(-1.2deg); }
+  .hero__code pre { margin: 0; font-family: var(--f-mono); font-size: .74rem; line-height: 1.7; color: var(--ink-2); overflow: hidden; }
+  .hero__code .c { color: var(--ink-3); } .hero__code .k { color: var(--lime); }
+  .hero__code ul { display: grid; gap: .3rem; font-family: var(--f-mono); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); border-left: 1px solid var(--line); padding-left: 1rem; align-content: center; }
+  .hero__spark { position: absolute; right: -10px; top: -12px; width: 22px; height: 22px; color: var(--lime); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__dot { animation: pulse 2.4s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(198, 240, 90, .45); } 50% { box-shadow: 0 0 0 7px rgba(198, 240, 90, 0); } }
+    .hero__title .ln > span { animation: lineUp 1.1s var(--ease) both; animation-delay: calc(var(--i) * 90ms + 80ms); }
+    [data-intro] { animation: fadeUp 1s var(--ease) both; animation-delay: calc(var(--i) * 90ms + 120ms); }
+    @keyframes lineUp { from { transform: translateY(105%); } }
+    @keyframes fadeUp { from { transform: translateY(14px); opacity: 0; } }
+  }
+
+  @media (max-width: 1240px) { .hero__visual { width: 38%; } .hero__code { margin-left: -10%; width: 100%; } }
+  @media (max-width: 1024px) {
+    .hero__rail { display: none; }
+    .hero__title { font-size: clamp(2.8rem, 1rem + 10vw, 7rem); }
+    .hero__visual { position: relative; right: auto; width: 100%; margin-top: 3rem; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem; align-items: stretch; }
+    .hero__code { margin: 0; width: auto; transform: none; }
+    .hero__frame { aspect-ratio: auto; min-height: 240px; }
+  }
+  @media (max-width: 640px) {
+    .hero__title { font-size: clamp(2.4rem, 13.2vw, 4.2rem); }
+    .hero__visual { grid-template-columns: minmax(0, 1fr); margin-top: 2.25rem; }
+    .hero__code { display: none; }
+    .hero__frame { min-height: 0; aspect-ratio: 16 / 10; }
+    .hero__tag { display: flex; flex-wrap: wrap; column-gap: .1rem; }
+  }
+</style>
+
+<script is:inline>
+(() => {
+  /* rail: highlight the section in view */
+  const rail = [...document.querySelectorAll('[data-rail] a')];
+  if (rail.length) {
+    const ids = rail.map(a => a.dataset.target);
+    const spy = () => {
+      let cur = ids[0];
+      for (const id of ids) { const s = document.getElementById(id); if (s && s.getBoundingClientRect().top < innerHeight * .4) cur = id; }
+      rail.forEach(a => a.classList.toggle('on', a.dataset.target === cur));
+    };
+    addEventListener('scroll', spy, { passive: true }); spy();
+  }
+
+  /* wireframe terrain */
+  const cv = document.querySelector('[data-terrain]'); if (!cv) return;
+  const ctx = cv.getContext('2d'); const hud = document.querySelector('[data-hud]');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W = 0, H = 0, t = 0, mx = .5, my = .5, tx = .5, ty = .5, visible = true, raf = 0;
+  const NX = 44, NZ = 30;
+  function size() { const r = cv.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2); W = r.width; H = r.height; cv.width = W * d; cv.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); }
+  const height = (x, z, time) => {
+    const peak = 1.25 * Math.exp(-((x - .58) ** 2 / .018 + (z - .62) ** 2 / .05));
+    const peak2 = .7 * Math.exp(-((x - .34) ** 2 / .02 + (z - .7) ** 2 / .04));
+    const roll = .09 * Math.sin(x * 9 + time * .6) * Math.cos(z * 7 - time * .4) + .05 * Math.sin((x + z) * 15 + time);
+    return peak + peak2 + roll;
+  };
+  function project(x, y, z) {
+    const yaw = (tx - .5) * .5, pitch = .55 + (ty - .5) * .25;
+    let X = x - .5, Z = z - .5; const Y = y * .32;
+    const cx = Math.cos(yaw), sx = Math.sin(yaw); [X, Z] = [X * cx - Z * sx, X * sx + Z * cx];
+    const cp = Math.cos(pitch), sp = Math.sin(pitch); const Y2 = Y * cp - Z * sp, Z2 = Y * sp + Z * cp;
+    const f = 1.7 / (2.3 - Z2);
+    return [W / 2 + X * f * W * .95, H * .62 - Y2 * f * H * 1.05];
+  }
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const pts = [];
+    for (let j = 0; j < NZ; j++) { const row = []; for (let i = 0; i < NX; i++) { const x = i / (NX - 1), z = j / (NZ - 1); row.push(project(x, height(x, z, t), z)); } pts.push(row); }
+    ctx.lineWidth = 1;
+    for (let j = 0; j < NZ; j++) {
+      ctx.strokeStyle = `rgba(237,238,232,${(.12 + .5 * (j / NZ)).toFixed(3)})`; ctx.beginPath();
+      pts[j].forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(237,238,232,.16)';
+    for (let i = 0; i < NX; i += 2) { ctx.beginPath(); for (let j = 0; j < NZ; j++) { const [x, y] = pts[j][i]; j ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke(); }
+    const [px, py] = project(.58, height(.58, .62, t), .62);
+    ctx.fillStyle = '#c6f05a'; ctx.beginPath(); ctx.arc(px, py, 3, 0, 7); ctx.fill();
+    ctx.strokeStyle = 'rgba(198,240,90,.5)'; ctx.beginPath(); ctx.moveTo(px, py - 6); ctx.lineTo(px, py - 26); ctx.stroke();
+  }
+  function loop() { t += .008; tx += (mx - tx) * .05; ty += (my - ty) * .05; draw(); if (hud) hud.textContent = `x ${(tx - .5).toFixed(2)} · y ${(ty - .5).toFixed(2)}`; raf = visible ? requestAnimationFrame(loop) : 0; }
+  addEventListener('pointermove', e => { mx = e.clientX / innerWidth; my = e.clientY / innerHeight; }, { passive: true });
+  addEventListener('resize', () => { size(); draw(); });
+  size(); draw();
+  if (!reduce) {
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible && !raf) raf = requestAnimationFrame(loop); }).observe(cv);
+    raf = requestAnimationFrame(loop);
+  }
+  document.fonts && document.fonts.ready.then(() => { size(); draw(); });
+})();
+</script>
