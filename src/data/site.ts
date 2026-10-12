@@ -34,14 +34,39 @@ export const metrics = [
 ];
 
 export const nav = [
-  { id: 'work', label: 'Work', href: '/#work' },
   { id: 'about', label: 'About', href: '/#about' },
-  { id: 'journey', label: 'Experience', href: '/#journey' },
+  { id: 'work', label: 'Work', href: '/#work' },
   { id: 'stack', label: 'Stack', href: '/#stack' },
+  { id: 'gallery', label: 'Gallery', href: '/#gallery' },
   { id: 'contact', label: 'Contact', href: '/#contact' },
 ];
 
-/** Experience & journey — chronological, left to right. */
+/** Gallery — drop photos in public/gallery/ named 1.jpg, 2.jpg … and describe each here, in the same order. */
+export const gallery: { title: string; caption: string; date?: string }[] = [
+  {
+    title: 'AISYWLC 2025, Ahmedabad',
+    caption: 'Represented the IEEE Delhi Section with the IEEE NSUT team at the All India Student, Young Professional, Women in Engineering and Life Members Congress, hosted by Adani University and Nirma University under the IEEE Gujarat Section. Three days of talks and conversations with mentors and speakers from IIT Patna, ERDA Vadodara and ISRO Ahmedabad.',
+    date: 'Oct 31 – Nov 2, 2025',
+  },
+  {
+    title: 'Outstanding Student Volunteer Award',
+    caption: 'Received the Outstanding Student Volunteer Award from the IEEE Delhi Section for my contributions as Vice Chairperson of the IEEE NSUT Student Branch (2025–26), presented at DSSYWLC’25, hosted at NSUT.',
+    date: '2025',
+  },
+  {
+    title: 'Certificate of Appreciation, TENSYMP 2024',
+    caption: 'Received a Certificate of Appreciation for my contributions as a member of the Student Organizing Committee for IEEE TENSYMP 2024, held at NSUT.',
+    date: 'Sep 27 – 29, 2024',
+  },
+  {
+    title: 'Team IEEE NSUT',
+    caption: 'With the IEEE NSUT team during my tenure as Vice Chairperson of the student branch (2025–26).',
+    date: '2025–26',
+  },
+  // { title: 'Next photo', caption: 'A line or two about the moment.', date: '2026' },
+];
+
+/** Experience & journey (not shown on the site right now) — chronological, left to right. */
 export const journey = [
   { year: '2023', title: 'NSUT', lines: ['B.Tech · Computer Science & AI'], tag: 'Education' },
   { year: '2024', title: 'IEEE NSUT', lines: ['Vice Chairperson', 'Leadership · Engineering · Community'], tag: 'Leadership' },

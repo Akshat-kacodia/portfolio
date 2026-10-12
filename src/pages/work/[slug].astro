@@ -15,7 +15,7 @@ const next = projects[(i + 1) % projects.length];
 const phone = p.shots === 'phone';
 const shots = projectShots(p.slug);
 const heroFrames = Array.from({ length: phone ? 2 : 1 }, (_, k) => shots[k] ?? null);
-const factIcon = (k: string) => (/platform|runs/i.test(k) ? 'device' : /user|for/i.test(k) ? 'users' : /data|class|task/i.test(k) ? 'data' : 'layers') as 'device' | 'users' | 'data' | 'layers';
+const factIcon = (k: string) => (/platform|runs/i.test(k) ? 'device' : /user|for|team/i.test(k) ? 'users' : /result/i.test(k) ? 'check' : /data|class|task/i.test(k) ? 'data' : 'layers') as 'device' | 'users' | 'data' | 'layers' | 'check';
 const tabs = [
   { id: 'overview', t: 'Overview' }, { id: 'problem', t: 'Problem' }, { id: 'solution', t: 'Solution' },
   { id: 'tech', t: 'Tech Stack' }, { id: 'features', t: 'Features' }, { id: 'outcome', t: 'Outcome' },
@@ -88,7 +88,7 @@ const gh = p.links.github === null ? null : (p.links.github || site.github);
       <section id="outcome" class="cs__row" data-cs-sec data-reveal>
         <h2 class="cs__h"><span class="tnum">05</span>Outcome</h2>
         <div class="cs__out">
-          {p.metric && <p class="cs__big">{p.metric.split(' ')[0]}<span>{p.metric.split(' ').slice(1).join(' ')}</span></p>}
+          {p.metric && (() => { const w = p.metric.split(' '); const i = Math.max(0, w.findIndex((x) => /\d/.test(x))); return <p class="cs__big">{w[i]}<span>{[...w.slice(0, i), ...w.slice(i + 1)].join(' ')}</span></p>; })()}
           <p class="cs__p">{p.outcome}</p>
         </div>
       </section>

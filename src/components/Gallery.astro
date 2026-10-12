@@ -1,0 +1,162 @@
+---
+// Gallery: photos drift slowly across the page, each with a short description.
+// Photos: public/gallery/1.jpg, 2.jpg … (jpg / png / webp). Descriptions: `gallery` in site.ts, same order.
+import { existsSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { gallery } from '../data/site';
+import AssetSlot from './ui/AssetSlot.astro';
+import sharp from 'sharp';
+
+const dir = join(process.cwd(), 'public', 'gallery');
+const files = existsSync(dir)
+  ? readdirSync(dir).filter((f) => /\.(jpe?g|png|webp|avif)$/i.test(f)).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+  : [];
+const count = Math.max(files.length, gallery.length, files.length ? 0 : 6);
+const placeholderAr = [0.8, 1.33, 1, 0.8, 1, 1.33];
+const items = await Promise.all(Array.from({ length: count }, async (_, i) => ({
+  src: files[i] ? `/gallery/${files[i]}` : null,
+  // each card takes the real shape of its photo
+  ar: files[i]
+    ? await sharp(join(dir, files[i])).metadata().then((m) => { const o = (m.orientation ?? 1) >= 5; const w = o ? m.height! : m.width!; const h = o ? m.width! : m.height!; return +(w / h).toFixed(3); })
+    : placeholderAr[i % placeholderAr.length],
+  title: gallery[i]?.title ?? '',
+  caption: gallery[i]?.caption ?? '',
+  date: gallery[i]?.date ?? '',
+  n: String(i + 1).padStart(2, '0'),
+})));
+// repeat short lists so the moving belt always looks full
+const loop = Array.from({ length: Math.max(items.length, Math.ceil(6 / items.length) * items.length) }, (_, k) => ({ ...items[k % items.length], idx: k % items.length, dup: k >= items.length }));
+const dur = Math.max(40, loop.length * 8);
+---
+<section id="gallery" class="section gallery" aria-labelledby="gallery-title">
+  <div class="container">
+    <header class="g__head" data-reveal>
+      <h2 class="h2" id="gallery-title">Gallery</h2>
+      <p class="g__sub">Moments from the people, events and things I’ve been part of.</p>
+    </header>
+  </div>
+
+  <div class="g__track" style={`--dur:${dur}s`} data-reveal>
+    <div class="g__belt">
+      {[0, 1].map((copy) => (
+        <ul class="g__set" aria-hidden={copy === 1 ? 'true' : undefined}>
+          {loop.map((it, i) => (
+            <li class="g__card" style={`--tilt:${i % 2 ? 1.6 : -1.4}deg; --ar:${it.ar}`}>
+              <button type="button" class="g__btn" data-g-open={it.idx} tabindex={copy === 1 || it.dup ? -1 : undefined} aria-hidden={it.dup ? 'true' : undefined} aria-label={it.title ? `Open photo: ${it.title}` : `Open photo ${it.n}`}>
+                <figure class="g__fig">
+                  <div class="g__img">
+                    {it.src
+                      ? <img src={it.src} alt={it.title || `Gallery photo ${it.n}`} loading="lazy" />
+                      : <AssetSlot label={`Photo ${it.n}`} path={`gallery/${it.idx + 1}.jpg`} />}
+                  </div>
+                  <figcaption class="g__cap">
+                    <span class="g__meta"><span class="tnum">{it.n}</span>{it.date && <span>{it.date}</span>}</span>
+                    <span class="g__title">{it.title || 'Add a title'}</span>
+                    <span class="g__text">{it.caption || 'Add a description in site.ts → gallery.'}</span>
+                  </figcaption>
+                </figure>
+              </button>
+            </li>
+          ))}
+        </ul>
+      ))}
+    </div>
+  </div>
+  <p class="container g__hint meta" data-reveal><span class="g__hint-fine">Hover to pause · click a photo to open it</span><span class="g__hint-touch">Tap a photo to open it</span></p>
+
+  <dialog class="g__dlg" data-g-dialog aria-label="Photo">
+    <button type="button" class="g__close" data-g-close aria-label="Close">×</button>
+    <div class="g__dlg-in">
+      <div class="g__dlg-img" data-g-img></div>
+      <div class="g__dlg-txt">
+        <p class="meta" data-g-meta></p>
+        <h3 class="g__dlg-title" data-g-title></h3>
+        <p class="g__dlg-cap" data-g-cap></p>
+      </div>
+    </div>
+  </dialog>
+  <script type="application/json" data-g-items set:html={JSON.stringify(items)} />
+</section>
+
+<style>
+  .gallery { border-top: 1px solid var(--line); overflow: hidden; }
+  .g__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem 2rem; flex-wrap: wrap; margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.5rem); }
+  .g__sub { color: var(--ink-3); }
+
+  .g__track { position: relative; padding-block: 1.5rem 1rem;
+    mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+  .g__belt { display: flex; width: max-content; }
+  .g__set { display: flex; align-items: center; gap: clamp(1rem, 2vw, 1.75rem); padding-right: clamp(1rem, 2vw, 1.75rem); }
+
+  .g__card { flex: none; transform: rotate(var(--tilt)); transition: transform .5s var(--ease); }
+  /* each card keeps its photo's shape, sized like the original cards (~300px tall, never wider than ~400px) */
+  .g__card { --h: clamp(170px, 17vw, 240px); --maxw: clamp(220px, 23vw, 320px); width: calc(min(var(--h) * var(--ar), var(--maxw)) + 1.4rem + 2px); }
+  .g__img { aspect-ratio: var(--ar); }
+  .g__card:hover, .g__card:focus-within { transform: rotate(0deg) translateY(-8px) scale(1.02); z-index: 2; }
+
+  .g__btn { display: block; width: 100%; text-align: left; cursor: zoom-in; border-radius: 16px; }
+  .g__fig { margin: 0; padding: .7rem .7rem 1rem; background: var(--bg-2); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 24px 40px -28px rgba(0, 0, 0, .9); transition: border-color var(--t-fast); }
+  .g__card:hover .g__fig { border-color: var(--line-2); }
+  .g__img { border-radius: 10px; overflow: hidden; background: var(--bg); }
+  .g__img img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.9); transition: transform .8s var(--ease), filter .4s; }
+  .g__card:hover .g__img img { transform: scale(1.05); filter: saturate(1); }
+  .g__cap { display: grid; gap: .3rem; padding: .85rem .3rem 0; }
+  .g__meta { display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .g__meta .tnum { color: var(--lime); }
+  .g__title { font-weight: 600; letter-spacing: -.015em; color: var(--ink); }
+  .g__text { font-size: .86rem; line-height: 1.5; color: var(--ink-3); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .g__hint { margin-top: 1.25rem; text-align: center; }
+  .g__hint-touch { display: none; }
+  @media (hover: none) { .g__hint-fine { display: none; } .g__hint-touch { display: inline; } }
+  @media (max-width: 640px) { .g__card { --h: min(50vw, 220px); --maxw: 64vw; } }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .g__belt { animation: drift var(--dur) linear infinite; }
+    .g__track:hover .g__belt, .g__track:focus-within .g__belt { animation-play-state: paused; }
+    @keyframes drift { to { transform: translateX(-50%); } }
+    .g__card:nth-child(odd) .g__fig { animation: bob 7s ease-in-out infinite; }
+    .g__card:nth-child(even) .g__fig { animation: bob 7s ease-in-out -3.5s infinite; }
+    @keyframes bob { 50% { transform: translateY(-6px); } }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .g__track { overflow-x: auto; scroll-snap-type: x mandatory; mask-image: none; -webkit-mask-image: none; }
+    .g__set[aria-hidden] { display: none; }
+    .g__set { padding-inline: var(--gutter); }
+    .g__card { scroll-snap-align: center; }
+    .g__hint { display: none; }
+  }
+
+  /* lightbox */
+  .g__dlg { width: min(960px, calc(100vw - 2rem)); max-height: calc(100svh - 2rem); padding: 0; border: 1px solid var(--line-2); border-radius: 18px; background: var(--bg-2); color: var(--ink); overflow: auto; }
+  .g__dlg::backdrop { background: rgba(5, 6, 5, .8); backdrop-filter: blur(6px); }
+  .g__dlg-in { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+  .g__dlg-img { min-height: 280px; background: var(--bg); }
+  .g__dlg-img img { width: 100%; height: 100%; max-height: 80svh; object-fit: contain; }
+  .g__dlg-txt { padding: clamp(1.25rem, 3vw, 2rem); display: grid; align-content: center; gap: .75rem; }
+  .g__dlg-title { font-size: 1.5rem; letter-spacing: -.03em; line-height: 1.15; }
+  .g__dlg-cap { color: var(--ink-2); line-height: 1.6; }
+  .g__close { position: absolute; top: .6rem; right: .6rem; z-index: 2; width: 40px; height: 40px; border-radius: 50%; background: rgba(11, 12, 11, .7); border: 1px solid var(--line-2); font-size: 1.4rem; line-height: 1; }
+  .g__close:hover { border-color: var(--lime); color: var(--lime); }
+  @media (max-width: 700px) { .g__dlg-in { grid-template-columns: minmax(0, 1fr); } }
+  @media (prefers-reduced-motion: no-preference) { .g__dlg[open] { animation: dlgIn .45s var(--ease); } @keyframes dlgIn { from { opacity: 0; transform: translateY(16px) scale(.98); } } }
+</style>
+
+<script is:inline>
+(() => {
+  const dlg = document.querySelector('[data-g-dialog]'); if (!dlg || !dlg.showModal) return;
+  const items = JSON.parse(document.querySelector('[data-g-items]').textContent);
+  const $ = (s) => dlg.querySelector(s);
+  document.querySelectorAll('[data-g-open]').forEach((b) => b.addEventListener('click', () => {
+    const it = items[+b.dataset.gOpen];
+    const box = $('[data-g-img]'); box.innerHTML = '';
+    if (it.src) { const img = new Image(); img.src = it.src; img.alt = it.title || ''; box.appendChild(img); }
+    else box.innerHTML = b.querySelector('.g__img').innerHTML;
+    $('[data-g-meta]').textContent = [it.n, it.date].filter(Boolean).join(' · ');
+    $('[data-g-title]').textContent = it.title || 'Add a title';
+    $('[data-g-cap]').textContent = it.caption || 'Add a description in site.ts → gallery.';
+    dlg.showModal();
+  }));
+  $('[data-g-close]').addEventListener('click', () => dlg.close());
+  dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+})();
+</script>
