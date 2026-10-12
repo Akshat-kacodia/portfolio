@@ -26,7 +26,6 @@ const items = await Promise.all(Array.from({ length: count }, async (_, i) => ({
 })));
 // repeat short lists so the moving belt always looks full
 const loop = Array.from({ length: Math.max(items.length, Math.ceil(6 / items.length) * items.length) }, (_, k) => ({ ...items[k % items.length], idx: k % items.length, dup: k >= items.length }));
-const dur = Math.max(40, loop.length * 8);
 ---
 <section id="gallery" class="section gallery" aria-labelledby="gallery-title">
   <div class="container">
@@ -36,7 +35,7 @@ const dur = Math.max(40, loop.length * 8);
     </header>
   </div>
 
-  <div class="g__track" style={`--dur:${dur}s`} data-reveal>
+  <div class="g__track" data-g-track data-reveal>
     <div class="g__belt">
       {[0, 1].map((copy) => (
         <ul class="g__set" aria-hidden={copy === 1 ? 'true' : undefined}>
@@ -62,7 +61,11 @@ const dur = Math.max(40, loop.length * 8);
       ))}
     </div>
   </div>
-  <p class="container g__hint meta" data-reveal><span class="g__hint-fine">Hover to pause · click a photo to open it</span><span class="g__hint-touch">Tap a photo to open it</span></p>
+  <div class="container g__ctrl" data-reveal>
+    <button type="button" class="g__arrow" data-g-prev aria-label="Previous photos">←</button>
+    <p class="g__hint meta"><span class="g__hint-fine">Drag or use the arrows · click a photo to open it</span><span class="g__hint-touch">Swipe to browse · tap a photo to open it</span></p>
+    <button type="button" class="g__arrow" data-g-next aria-label="Next photos">→</button>
+  </div>
 
   <dialog class="g__dlg" data-g-dialog aria-label="Photo">
     <button type="button" class="g__close" data-g-close aria-label="Close">×</button>
@@ -105,25 +108,24 @@ const dur = Math.max(40, loop.length * 8);
   .g__meta .tnum { color: var(--lime); }
   .g__title { font-weight: 600; letter-spacing: -.015em; color: var(--ink); }
   .g__text { font-size: .86rem; line-height: 1.5; color: var(--ink-3); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .g__hint { margin-top: 1.25rem; text-align: center; }
+  .g__track { touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
+  .g__track.is-drag { cursor: grabbing; }
+  .g__track.is-drag .g__btn { pointer-events: none; }
+  .g__belt { will-change: transform; }
+  .g__img img { -webkit-user-drag: none; pointer-events: none; }
+  .g__ctrl { margin-top: 1.25rem; display: flex; justify-content: center; align-items: center; gap: 1.25rem; }
+  .g__arrow { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line-2); color: var(--ink-2); font-size: 1.05rem; transition: border-color var(--t-fast), color var(--t-fast), transform var(--t-fast); }
+  .g__arrow:hover { border-color: var(--lime); color: var(--lime); }
+  .g__arrow:active { transform: scale(.94); }
+  .g__hint { text-align: center; }
   .g__hint-touch { display: none; }
   @media (hover: none) { .g__hint-fine { display: none; } .g__hint-touch { display: inline; } }
   @media (max-width: 640px) { .g__card { --h: min(50vw, 220px); --maxw: 64vw; } }
 
   @media (prefers-reduced-motion: no-preference) {
-    .g__belt { animation: drift var(--dur) linear infinite; }
-    .g__track:hover .g__belt, .g__track:focus-within .g__belt { animation-play-state: paused; }
-    @keyframes drift { to { transform: translateX(-50%); } }
     .g__card:nth-child(odd) .g__fig { animation: bob 7s ease-in-out infinite; }
     .g__card:nth-child(even) .g__fig { animation: bob 7s ease-in-out -3.5s infinite; }
     @keyframes bob { 50% { transform: translateY(-6px); } }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .g__track { overflow-x: auto; scroll-snap-type: x mandatory; mask-image: none; -webkit-mask-image: none; }
-    .g__set[aria-hidden] { display: none; }
-    .g__set { padding-inline: var(--gutter); }
-    .g__card { scroll-snap-align: center; }
-    .g__hint { display: none; }
   }
 
   /* lightbox */
@@ -158,5 +160,80 @@ const dur = Math.max(40, loop.length * 8);
   }));
   $('[data-g-close]').addEventListener('click', () => dlg.close());
   dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+})();
+
+/* the moving belt: drifts on its own, and can be dragged, swiped or nudged with the arrows */
+(() => {
+  const track = document.querySelector('[data-g-track]'); if (!track) return;
+  const belt = track.querySelector('.g__belt');
+  const dlg = document.querySelector('[data-g-dialog]');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const SPEED = reduce ? 0 : 38;               // px per second when idle
+  let x = 0, half = 1, vel = 0, hover = false, drag = null, moved = 0, visible = true, last = 0, glide = 0;
+
+  const measure = () => { half = belt.scrollWidth / 2 || 1; };
+  const wrap = () => { x = ((x % half) + half) % half; };
+  const paint = () => { belt.style.transform = `translate3d(${-x}px,0,0)`; };
+
+  const tick = (t) => {
+    const dt = Math.min(.05, (t - (last || t)) / 1000); last = t;
+    const paused = (fine && hover) || drag || (dlg && dlg.open) || !visible;
+    if (!drag) {
+      if (glide) { x += glide; glide *= .9; if (Math.abs(glide) < .1) glide = 0; }
+      else if (!paused) x += SPEED * dt;
+      x += vel; vel *= .92; if (Math.abs(vel) < .05) vel = 0;
+    }
+    wrap(); paint(); requestAnimationFrame(tick);
+  };
+
+  track.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hover = true; });
+  track.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') hover = false; });
+
+  track.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    drag = { sx: e.clientX, sy: e.clientY, x0: x, lx: e.clientX, lt: performance.now(), v: 0, axis: null, id: e.pointerId };
+    moved = 0; vel = 0; glide = 0;
+  });
+  addEventListener('pointermove', (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+    if (!drag.axis && Math.hypot(dx, dy) > 6) {
+      drag.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+      if (drag.axis === 'x') { track.classList.add('is-drag'); try { track.setPointerCapture(drag.id); } catch {} }
+    }
+    if (drag.axis === 'y') { drag = null; return; }   // vertical swipe: let the page scroll
+    if (drag.axis !== 'x') return;
+    const now = performance.now();
+    drag.v = (drag.lx - e.clientX) / Math.max(1, now - drag.lt) * 16; drag.lx = e.clientX; drag.lt = now;
+    moved = Math.abs(dx); x = drag.x0 - dx; wrap(); paint();
+  });
+  const end = () => {
+    if (!drag) return;
+    if (drag.axis === 'x') vel = Math.max(-40, Math.min(40, drag.v));
+    drag = null; setTimeout(() => track.classList.remove('is-drag'), 0);
+  };
+  addEventListener('pointerup', end); addEventListener('pointercancel', end);
+  // a drag should not open the photo
+  track.addEventListener('click', (e) => { if (moved > 6) { e.stopPropagation(); e.preventDefault(); moved = 0; } }, true);
+
+  // trackpads / shift+wheel scroll the belt sideways
+  track.addEventListener('wheel', (e) => {
+    const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : (e.shiftKey ? e.deltaY : 0);
+    if (!d) return; e.preventDefault(); x += d; wrap(); paint();
+  }, { passive: false });
+
+  const step = () => Math.min(innerWidth * .6, 420);
+  document.querySelector('[data-g-next]')?.addEventListener('click', () => { glide = step() * .1; });
+  document.querySelector('[data-g-prev]')?.addEventListener('click', () => { glide = -step() * .1; });
+
+  // closing the photo should never leave the belt stuck
+  dlg?.addEventListener('close', () => { hover = false; drag = null; last = 0; document.activeElement?.blur?.(); });
+
+  new IntersectionObserver(([en]) => { visible = en.isIntersecting; }).observe(track);
+  addEventListener('resize', measure);
+  (document.fonts?.ready || Promise.resolve()).then(measure);
+  addEventListener('load', measure);
+  measure(); requestAnimationFrame(tick);
 })();
 </script>

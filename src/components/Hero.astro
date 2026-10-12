@@ -9,14 +9,14 @@ const rail = [
   { n: '04', t: 'stack', label: 'Stack' }, { n: '05', t: 'gallery', label: 'Gallery' }, { n: '06', t: 'contact', label: 'Contact' },
 ];
 
-type Key = { glyph: string; label: string; href: string; title: string; desc: string; tone: string; ext?: boolean };
+type Key = { glyph: string; label: string; short: string; href: string; title: string; desc: string; tone: string; ext?: boolean };
 const row1: Key[] = [
-  { glyph: 'A', label: 'About me', href: '#about', title: 'About me', desc: 'Who I am, what I study and what I’m doing next.', tone: 'cream' },
-  { glyph: 'K', label: 'Selected work', href: '#work', title: 'Selected work', desc: 'Android apps and AI/ML research I’ve built.', tone: 'lime' },
-  { glyph: 'S', label: 'Tech stack', href: '#stack', title: 'Tech stack', desc: 'The languages, frameworks and tools I use most.', tone: 'sand' },
-  { glyph: 'H', label: 'Gallery', href: '#gallery', title: 'Gallery', desc: 'Moments from events, teams and things I’ve been part of.', tone: 'moss' },
-  { glyph: 'A', label: 'Contact', href: '#contact', title: 'Contact', desc: 'Have an idea? Let’s build it.', tone: 'graphite' },
-  { glyph: 'T', label: 'Résumé', href: site.resume, title: 'Résumé', desc: 'Open my résumé in a new tab.', tone: 'cream', ext: true },
+  { glyph: 'A', label: 'About me', short: 'About', href: '#about', title: 'About me', desc: 'Who I am, what I study and what I’m doing next.', tone: 'cream' },
+  { glyph: 'K', label: 'Selected work', short: 'Work', href: '#work', title: 'Selected work', desc: 'Android apps and AI/ML research I’ve built.', tone: 'lime' },
+  { glyph: 'S', label: 'Tech stack', short: 'Stack', href: '#stack', title: 'Tech stack', desc: 'The languages, frameworks and tools I use most.', tone: 'sand' },
+  { glyph: 'H', label: 'Gallery', short: 'Gallery', href: '#gallery', title: 'Gallery', desc: 'Moments from events, teams and things I’ve been part of.', tone: 'moss' },
+  { glyph: 'A', label: 'Contact', short: 'Contact', href: '#contact', title: 'Contact', desc: 'Have an idea? Let’s build it.', tone: 'graphite' },
+  { glyph: 'T', label: 'Résumé', short: 'Résumé', href: site.resume, title: 'Résumé', desc: 'Open my résumé in a new tab.', tone: 'cream', ext: true },
 ];
 const row2 = [
   { icon: 'github' as const, label: 'GitHub', href: site.github, title: 'GitHub', desc: 'github.com/Akshat-kacodia', tone: 'graphite', ext: true },
@@ -56,7 +56,7 @@ const row2 = [
               {row1.map((k) => (
                 <a class={`key key--${k.tone}`} href={k.href} data-key data-title={k.title} data-desc={k.desc}
                    target={k.ext ? '_blank' : undefined} rel={k.ext ? 'noopener' : undefined} aria-label={k.label}>
-                  <span class="key__cap"><span class="key__glyph" aria-hidden="true">{k.glyph}</span><span class="key__label" aria-hidden="true">{k.label}</span></span>
+                  <span class="key__cap"><span class="key__glyph" aria-hidden="true">{k.glyph}</span><span class="key__label" aria-hidden="true"><span class="key__long">{k.label}</span><span class="key__short">{k.short}</span></span></span>
                 </a>
               ))}
             </div>
@@ -157,6 +157,7 @@ const row2 = [
   .key__cap::before { content: ""; position: absolute; inset: 9% 9% 22%; border-radius: 1.4cqi; background: radial-gradient(120% 90% at 50% 0%, rgba(255, 255, 255, .28), transparent 70%); pointer-events: none; }
   .key__glyph { font-family: var(--f-display); font-weight: 800; font-stretch: 80%; font-variation-settings: "wdth" 80; font-size: max(1.15rem, 4.4cqi); line-height: 1; }
   .key__label { font-family: var(--f-mono); font-size: max(.5rem, 1cqi); letter-spacing: .08em; text-transform: uppercase; color: var(--sub); line-height: 1.1; text-align: left; }
+  .key__short { display: none; }
   .key--sm .key__cap { aspect-ratio: auto; height: 100%; min-height: 7.4cqi; }
   .key :global(.key__icon) { width: max(16px, 2.6cqi); height: max(16px, 2.6cqi); }
 
@@ -189,6 +190,7 @@ const row2 = [
   @media (prefers-reduced-motion: reduce) { .kb { transform: none; } }
 
   @media (max-width: 1024px) { .hero__rail { display: none; } }
+  /* phones: 3 × 2 letter keys, each labelled with the section it opens */
   @media (max-width: 640px) {
     .kb { transform: none; }
     .kb__lid { margin-inline: 2.5cqi; padding: 4cqi; }
@@ -196,12 +198,20 @@ const row2 = [
     .kb__bar-r { display: none; }
     .kb__title { font-size: 6.4cqi; }
     .kb__desc { font-size: 3.3cqi; }
-    .kb__row1 { gap: 1.6cqi; padding: 2cqi 2cqi 2.8cqi; }
-    .key__label { display: none; }
-    .key__cap { align-items: center; justify-content: center; aspect-ratio: 1 / 1.05; }
-    .key__glyph { font-size: 6.6cqi; }
-    .key--sm .key__cap { min-height: 12cqi; }
-    .key__enter-label { font-size: 2.6cqi; }
+    .kb__keys { gap: 3cqi; }
+    .kb__well { gap: 2.6cqi; padding: 2.6cqi 2.6cqi 3.6cqi; border-radius: 4.5cqi; }
+    .kb__row1 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .key { --d: 1.6cqi; }
+    .key__cap { aspect-ratio: 1.45 / 1; padding: 2.4cqi 2.6cqi 2.2cqi; border-radius: 3.2cqi; }
+    .key__glyph { font-size: 8cqi; }
+    .key__label { font-size: max(.62rem, 2.8cqi); letter-spacing: .06em; font-weight: 600; }
+    .key__long { display: none; } .key__short { display: inline; }
+    .kb__row2 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .key--sm .key__cap { min-height: 15cqi; padding: 2.2cqi 2.4cqi; gap: 1cqi; }
+    .key--sm .key__label { font-size: max(.55rem, 2.3cqi); }
+    .key--enter { grid-column: 1 / -1; }
+    .key--enter .key__cap { min-height: 12cqi; padding-inline: 4cqi; }
+    .key__enter-label { font-size: 3cqi; }
     .s1, .s2 { top: 1.4cqi; } .s3, .s4 { bottom: 1.4cqi; }
   }
 </style>
